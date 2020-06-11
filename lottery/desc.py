@@ -145,7 +145,9 @@ class LotteryDesc(Desc):
 
         if not isinstance(replicate, int) or replicate <= 0:
             raise ValueError('Bad replicate: {}'.format(replicate))
-
+        
+        #root:open_lth_data
+        #open_lth_data/hashname/replicate_/level_/main/
         return os.path.join(get_platform().root, self.hashname,
                             f'replicate_{replicate}', f'level_{pruning_level}', experiment)
 

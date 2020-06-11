@@ -22,6 +22,16 @@ class Dataset(abc.ABC, torch.utils.data.Dataset):
 
     @staticmethod
     @abc.abstractmethod
+    def num_fl_train_examples() -> int:
+        pass
+    
+    @staticmethod
+    @abc.abstractmethod
+    def num_fl_test_examples() -> int:
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
     def num_train_examples() -> int:
         pass
 
@@ -33,6 +43,11 @@ class Dataset(abc.ABC, torch.utils.data.Dataset):
     @staticmethod
     @abc.abstractmethod
     def get_train_set(use_augmentation: bool) -> 'Dataset':
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def get_non_iid_train_set(use_augmentation: bool, bias_fraction: float) -> 'Dataset':
         pass
 
     @staticmethod
@@ -90,6 +105,9 @@ class ImageDataset(Dataset):
     @abc.abstractmethod
     def example_to_image(self, example: np.ndarray) -> Image: pass
 
+    @abc.abstractmethod
+    def non_iid_example_to_image(self, example: np.ndarray) -> Image: pass
+
     def __init__(self, examples, labels, image_transforms=None, tensor_transforms=None,
                  joint_image_transforms=None, joint_tensor_transforms=None):
         super(ImageDataset, self).__init__(examples, labels)
@@ -106,7 +124,8 @@ class ImageDataset(Dataset):
                 self._image_transforms + [torchvision.transforms.ToTensor()] + self._tensor_transforms)
 
         example, label = self._examples[index], self._labels[index]
-        example = self.example_to_image(example)
+        #get_non_iid already changed it to ndarray
+        example = self.non_iid_example_to_image(example)
         for t in self._joint_image_transforms: example, label = t(example, label)
         example = self._composed(example)
         for t in self._joint_tensor_transforms: example, label = t(example, label)
