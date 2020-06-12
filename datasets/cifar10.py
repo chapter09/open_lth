@@ -81,7 +81,7 @@ class Dataset(base.ImageDataset):
             total_size = cls.num_train_examples()
         
         if bias_fraction is None:
-            dist = Dataset.uniform(total_size, Dataset.num_classes())
+            dist = Dataset.uniform(total_size, cls.num_classes())
 
         else:
             # 1. 80% for one label, 20% for the rest
