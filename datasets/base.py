@@ -45,9 +45,9 @@ class Dataset(abc.ABC, torch.utils.data.Dataset):
     def get_train_set(use_augmentation: bool) -> 'Dataset':
         pass
 
-    @staticmethod
+    @classmethod
     @abc.abstractmethod
-    def get_non_iid_train_set(use_augmentation: bool, bias_fraction: float) -> 'Dataset':
+    def get_non_iid_train_set(cls, use_augmentation: bool, bias_fraction: float, fl_test: bool) -> 'Dataset':
         pass
 
     @staticmethod
@@ -150,6 +150,37 @@ class ImageDataset(Dataset):
             return torchvision.transforms.RandomRotation(label*90)(image), label
         self._joint_image_transforms.append(rotate_transform)
 
+    @staticmethod
+    def extract(used, trainset, label, labels, n):
+        if len(trainset[label]) > n:
+            extracted = trainset[label][:n]  # Extract data
+            if label not in used.keys():
+                used[label]=[]
+            used[label].extend(extracted)  # Move data to used
+            del trainset[label][:n]  # Remove from trainset
+            return extracted
+        else:
+            print('Insufficient data in label: {}'.format(label))
+            print('Dumping used data for reuse')
+
+            # Unmark data as used
+            for label in labels:
+                trainset[label].extend(used[label])
+                used[label] = []
+
+            # Extract replenished data
+            return Dataset.extract(used, trainset, label, labels,n)
+
+    @staticmethod
+    def uniform(N,k):
+        dist = []
+        avg = N / k
+        # Make distribution
+        for i in range(k):
+            dist.append(int((i + 1) * avg) - int(i * avg))
+        # Return shuffled distribution
+        np.random.shuffle(dist)
+        return dist
 
 class ShuffleSampler(torch.utils.data.sampler.Sampler):
     def __init__(self, num_examples):

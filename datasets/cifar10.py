@@ -56,8 +56,8 @@ class Dataset(base.ImageDataset):
         return Dataset(train_set.data, np.array(train_set.targets), augment if use_augmentation else [])
     
     
-    @staticmethod
-    def get_non_iid_train_set(use_augmentation, bias_fraction):
+    @classmethod
+    def get_non_iid_train_set(cls, use_augmentation, bias_fraction, fl_test):
 
         augment = [torchvision.transforms.RandomHorizontalFlip(), torchvision.transforms.RandomCrop(32, 4)]
         train_set = CIFAR10(train=True, root=os.path.join(get_platform().dataset_root, 'cifar10_non_iid'), download=True)
@@ -74,33 +74,30 @@ class Dataset(base.ImageDataset):
             grouped_data[label].append(dataitem)
         trainset = grouped_data
 
-        #non-iid data:
-        total_size = 500
-        # 1. 80% for one label, 20% for the rest
-        majority = int(total_size * bias_fraction)
-        minority = total_size - majority
-        #number of minor labels
-        len_minor_labels = len(labels)-1
-        #distributed among all minor labels
-        dist = uniform(minority, len_minor_labels)
-        #randomly choose 1 label and get 480 sample
-        pref = int(10*random.uniform(0, 1))
-        #pref = 0
-        dist.insert(pref, majority)
-        '''
-        #2. 50% for one label 50% for another label
-        dist = [0]*10
-        pref_list = random.sample(range(0,10),2)
-        for index in pref_list:
-            dist[index]=300
+        #total data number:
+        if fl_test:
+            total_size = cls.num_fl_train_examples()
+        else:
+            total_size = cls.num_train_examples()
         
-        print(dist)
-        '''
+        if bias_fraction is None:
+            dist = Dataset.uniform(total_size, Dataset.num_classes())
+
+        else:
+            # 1. 80% for one label, 20% for the rest
+            majority = int(total_size * bias_fraction)
+            minority = total_size - majority
+            #distributed among all minor labels
+            dist = Dataset.uniform(minority, (len(labels)-1))
+            #randomly choose 1 label and get 480 sample
+            pref = int(10*random.uniform(0, 1))
+            dist.insert(pref, majority)
+
         #list of data with label
         partition = []
         used = {}
         for i, label in enumerate(labels):
-            partition.extend(extract(used, trainset, label, labels, dist[i]))
+            partition.extend(Dataset.extract(used, trainset, label, labels, dist[i]))
         np.random.shuffle(partition)
 
         data = []
@@ -134,33 +131,3 @@ class Dataset(base.ImageDataset):
 
 DataLoader = base.DataLoader
 
-def extract(used, trainset, label, labels, n):
-    if len(trainset[label]) > n:
-        extracted = trainset[label][:n]  # Extract data
-        if label not in used.keys():
-            used[label]=[]
-        used[label].extend(extracted)  # Move data to used
-        del trainset[label][:n]  # Remove from trainset
-        return extracted
-    else:
-        print('Insufficient data in label: {}'.format(label))
-        print('Dumping used data for reuse')
-
-        # Unmark data as used
-        for label in labels:
-            trainset[label].extend(used[label])
-            used[label] = []
-
-        # Extract replenished data
-        return extract(used, trainset, label, labels,n)
-
-
-def uniform(N,k):
-    dist = []
-    avg = N / k
-    # Make distribution
-    for i in range(k):
-        dist.append(int((i + 1) * avg) - int(i * avg))
-    # Return shuffled distribution
-    np.random.shuffle(dist)
-    return dist
