@@ -24,6 +24,8 @@ class LotteryRunner(Runner):
     desc: LotteryDesc
     verbose: bool = True
     evaluate_every_epoch: bool = True
+    #lottery_saved_path: str
+  
 
     @staticmethod
     def description():

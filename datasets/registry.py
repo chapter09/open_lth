@@ -22,11 +22,7 @@ def get(dataset_hparams: DatasetHparams, train: bool = True):
     if dataset_hparams.dataset_name in registered_datasets:
         use_augmentation = train and not dataset_hparams.do_not_augment
         if train:
-            #4 different cases: normal, fl_test:sample*0.01, non_iid
-            if dataset_hparams.bias_fraction is not None or dataset_hparams.fl_test:
-                dataset = registered_datasets[dataset_hparams.dataset_name].Dataset.get_non_iid_train_set(use_augmentation, bias_fraction=dataset_hparams.bias_fraction, fl_test=dataset_hparams.fl_test)
-            else:
-                dataset = registered_datasets[dataset_hparams.dataset_name].Dataset.get_train_set(use_augmentation)
+            dataset = registered_datasets[dataset_hparams.dataset_name].Dataset.get_train_set(use_augmentation, dataset_hparams.client_num, dataset_hparams.bias_fraction)
         else:
             dataset = registered_datasets[dataset_hparams.dataset_name].Dataset.get_test_set()
     else:
@@ -61,11 +57,8 @@ def get(dataset_hparams: DatasetHparams, train: bool = True):
 def iterations_per_epoch(dataset_hparams: DatasetHparams):
     """Get the number of iterations per training epoch."""
 
-    if dataset_hparams.dataset_name in registered_datasets:
-        if dataset_hparams.fl_test:
-            num_train_examples = registered_datasets[dataset_hparams.dataset_name].Dataset.num_fl_train_examples()
-        else:
-            num_train_examples = registered_datasets[dataset_hparams.dataset_name].Dataset.num_train_examples()
+    if dataset_hparams.dataset_name in registered_datasets: 
+        num_train_examples = registered_datasets[dataset_hparams.dataset_name].Dataset.num_train_examples(dataset_hparams.client_num) 
     else:
         raise ValueError('No such dataset: {}'.format(dataset_hparams.dataset_name))
 

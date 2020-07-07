@@ -35,80 +35,29 @@ class Dataset(base.ImageDataset):
     """The CIFAR-10 dataset."""
 
     @staticmethod
-    def num_train_examples(): return 50000
+    def num_train_examples(client_num): return 50000 / client_num
 
     @staticmethod
-    def num_test_examples(): return 10000
+    def num_test_examples(client_num): return 10000 / client_num
 
     @staticmethod
     def num_fl_train_examples(): return 500
 
     @staticmethod
-    def num_fl_test_examples(): return 100
-
-    @staticmethod
     def num_classes(): return 10
 
     @staticmethod
-    def get_train_set(use_augmentation):
+    def get_train_set(cls, use_augmentation, client_num, bias_fraction):
         augment = [torchvision.transforms.RandomHorizontalFlip(), torchvision.transforms.RandomCrop(32, 4)]
         train_set = CIFAR10(train=True, root=os.path.join(get_platform().dataset_root, 'cifar10'), download=True)
-        return Dataset(train_set.data, np.array(train_set.targets), augment if use_augmentation else [])
+        if bias_fraction:
+            data, targets = Dataset.get_non_iid_set(train_set, client_num, bias_fraction)
+        else:
+            data = train_set.data
+            targets = train_set.targets
+        return Dataset(cls(np.array(data), np.array(targets)), augment if use_augmentation else [])
     
     
-    @classmethod
-    def get_non_iid_train_set(cls, use_augmentation, bias_fraction, fl_test):
-
-        augment = [torchvision.transforms.RandomHorizontalFlip(), torchvision.transforms.RandomCrop(32, 4)]
-        train_set = CIFAR10(train=True, root=os.path.join(get_platform().dataset_root, 'cifar10_non_iid'), download=True)
-        
-        labels = list(train_set.classes)
-
-        #create dict {label: [data]}
-        grouped_data = {label: []
-                        for label in labels}
-        for dataitem in train_set:
-            #tuple (<PIL.Image.Image image mode=L size=28x28 at 0x7FC0EA7A03D0>, 8)
-            _, label = dataitem
-            label = labels[label]
-            grouped_data[label].append(dataitem)
-        trainset = grouped_data
-
-        #total data number:
-        if fl_test:
-            total_size = cls.num_fl_train_examples()
-        else:
-            total_size = cls.num_train_examples()
-        
-        if bias_fraction is None:
-            dist = Dataset.uniform(total_size, cls.num_classes())
-
-        else:
-            # 1. 80% for one label, 20% for the rest
-            majority = int(total_size * bias_fraction)
-            minority = total_size - majority
-            #distributed among all minor labels
-            dist = Dataset.uniform(minority, (len(labels)-1))
-            #randomly choose 1 label and get 480 sample
-            pref = int(10*random.uniform(0, 1))
-            dist.insert(pref, majority)
-
-        #list of data with label
-        partition = []
-        used = {}
-        for i, label in enumerate(labels):
-            partition.extend(Dataset.extract(used, trainset, label, labels, dist[i]))
-        np.random.shuffle(partition)
-
-        data = []
-        targets = []
-
-        for d,t in partition:
-            data.append(np.asarray(d))
-            targets.append(t)
-
-        return Dataset(np.asarray(data), np.asarray(targets), augment if use_augmentation else [])
-  
 
     @staticmethod
     def get_test_set():

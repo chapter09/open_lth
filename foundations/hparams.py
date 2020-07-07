@@ -113,7 +113,7 @@ class DatasetHparams(Hparams):
     unsupervised_labels: str = None
     blur_factor: int = None
     bias_fraction: float = None
-    fl_test: bool = False
+    client_num: int = 100
 
     _name: str = 'Dataset Hyperparameters'
     _description: str = 'Hyperparameters that select the dataset, data augmentation, and other data transformations.'
@@ -128,6 +128,7 @@ class DatasetHparams(Hparams):
     _blur_factor: str = 'Blur the training set by downsampling and then upsampling by this multiple.'
     _bias_fraction: str = 'bias fraction for non-iid data'
     _fl_test: str = 'doing federated learning test, set train datasize to 600, test datasize to 100'
+    _client_num: str = 'total client numbers in federated learning'
 
 @dataclass
 class ModelHparams(Hparams):

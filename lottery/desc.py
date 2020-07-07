@@ -29,6 +29,7 @@ class LotteryDesc(Desc):
     pretrain_dataset_hparams: hparams.DatasetHparams = None
     pretrain_training_hparams: hparams.TrainingHparams = None
 
+
     @staticmethod
     def name_prefix(): return 'lottery'
 
@@ -148,6 +149,7 @@ class LotteryDesc(Desc):
         
         #root:open_lth_data
         #open_lth_data/hashname/replicate_/level_/main/
+        self.lottery_saved_folder = os.path.join(get_platform().root, self.hashname)
         return os.path.join(get_platform().root, self.hashname,
                             f'replicate_{replicate}', f'level_{pruning_level}', experiment)
 

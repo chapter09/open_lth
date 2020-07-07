@@ -151,6 +151,11 @@ class ImageDataset(Dataset):
         self._joint_image_transforms.append(rotate_transform)
 
     @staticmethod
+    def get_non_iid_set(train_set, client_num, bias_fraction):
+        pass
+
+
+    @staticmethod
     def extract(used, trainset, label, labels, n):
         if len(trainset[label]) > n:
             extracted = trainset[label][:n]  # Extract data
