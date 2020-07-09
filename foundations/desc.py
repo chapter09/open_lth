@@ -8,9 +8,9 @@ import argparse
 from dataclasses import dataclass, fields
 import hashlib
 
-from foundations.hparams import Hparams
-from foundations import paths
-from platforms.platform import get_platform
+from open_lth.foundations.hparams import Hparams
+from open_lth.foundations import paths
+from open_lth.platforms.platform import get_platform
 
 
 @dataclass

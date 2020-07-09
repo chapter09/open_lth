@@ -113,8 +113,8 @@ class DatasetHparams(Hparams):
     unsupervised_labels: str = None
     blur_factor: int = None
     bias_fraction: float = None
-    fl_test: bool = False
-
+    client_num: int = None
+       
     _name: str = 'Dataset Hyperparameters'
     _description: str = 'Hyperparameters that select the dataset, data augmentation, and other data transformations.'
     _dataset_name: str = 'The name of the dataset. Examples: mnist, cifar10'
@@ -127,7 +127,7 @@ class DatasetHparams(Hparams):
     _unsupervised_labels: str = 'Replace the standard labels with alternative, unsupervised labels. Example: rotation'
     _blur_factor: str = 'Blur the training set by downsampling and then upsampling by this multiple.'
     _bias_fraction: str = 'bias fraction for non-iid data'
-    _fl_test: str = 'doing federated learning test, set train datasize to 600, test datasize to 100'
+    _client_num: str = 'total clients number.'
 
 @dataclass
 class ModelHparams(Hparams):
@@ -164,6 +164,7 @@ class TrainingHparams(Hparams):
     weight_decay: float = None
     apex_fp16: bool = False
 
+
     _name: str = 'Training Hyperparameters'
     _description: str = 'Hyperparameters that determine how the model is trained.'
     _optimizer_name: str = 'The opimizer with which to train the network. Examples: sgd, adam'
@@ -188,3 +189,14 @@ class PruningHparams(Hparams):
     _description: str = 'Hyperparameters that determine how the model is pruned. ' \
                         'More hyperparameters will appear once the pruning strategy is selected.'
     _pruning_strategy: str = 'The pruning strategy to use.'
+
+
+@dataclass
+class ClientHparams(Hparams):
+    client_id: int 
+    round_num: int 
+
+    _name: str = 'Client Hyperparameters'
+    _description: str = 'Hyperparameters that describe which client is trained on which round.'
+    _client_id: str = 'client id.'
+    _round_num: str = 'fl learning round number.'

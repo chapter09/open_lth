@@ -9,13 +9,13 @@ from dataclasses import dataclass, replace
 import os
 from typing import Union
 
-from cli import arg_utils
-from datasets import registry as datasets_registry
-from foundations.desc import Desc
-from foundations import hparams
-from foundations.step import Step
-from platforms.platform import get_platform
-import pruning.registry
+from open_lth.cli import arg_utils
+from open_lth.datasets import registry as datasets_registry
+from open_lth.foundations.desc import Desc
+from open_lth.foundations import hparams
+from open_lth.foundations.step import Step
+from open_lth.platforms.platform import get_platform
+import open_lth.pruning.registry
 
 
 @dataclass
@@ -26,8 +26,11 @@ class LotteryDesc(Desc):
     dataset_hparams: hparams.DatasetHparams
     training_hparams: hparams.TrainingHparams
     pruning_hparams: hparams.PruningHparams
+    client_hparams: hparams.ClientHparams
     pretrain_dataset_hparams: hparams.DatasetHparams = None
     pretrain_training_hparams: hparams.TrainingHparams = None
+    lottery_saved_folder = None
+    
 
     @staticmethod
     def name_prefix(): return 'lottery'
@@ -67,7 +70,7 @@ class LotteryDesc(Desc):
         pruning_strategy = arg_utils.maybe_get_arg('pruning_strategy')
         if defaults and not pruning_strategy: pruning_strategy = defaults.pruning_hparams.pruning_strategy
         if pruning_strategy:
-            pruning_hparams = pruning.registry.get_pruning_hparams(pruning_strategy)
+            pruning_hparams = open_lth.pruning.registry.get_pruning_hparams(pruning_strategy)
             if defaults and defaults.pruning_hparams.pruning_strategy == pruning_strategy:
                 def_ph = defaults.pruning_hparams
         else:
@@ -78,6 +81,8 @@ class LotteryDesc(Desc):
         hparams.DatasetHparams.add_args(parser, defaults=defaults.dataset_hparams if defaults else None)
         hparams.ModelHparams.add_args(parser, defaults=defaults.model_hparams if defaults else None)
         hparams.TrainingHparams.add_args(parser, defaults=defaults.training_hparams if defaults else None)
+        hparams.ClientHparams.add_args(parser, defaults=defaults.client_hparams if defaults else None)
+        
         pruning_hparams.add_args(parser, defaults=def_ph if defaults else None)
 
         # Handle pretraining.
@@ -94,10 +99,11 @@ class LotteryDesc(Desc):
         dataset_hparams = hparams.DatasetHparams.create_from_args(args)
         model_hparams = hparams.ModelHparams.create_from_args(args)
         training_hparams = hparams.TrainingHparams.create_from_args(args)
-        pruning_hparams = pruning.registry.get_pruning_hparams(args.pruning_strategy).create_from_args(args)
+        client_hparams = hparams.ClientHparams.create_from_args(args)
+        pruning_hparams = open_lth.pruning.registry.get_pruning_hparams(args.pruning_strategy).create_from_args(args)
 
         # Create the desc.
-        desc = cls(model_hparams, dataset_hparams, training_hparams, pruning_hparams)
+        desc = cls(model_hparams, dataset_hparams, training_hparams, pruning_hparams, client_hparams)
 
         # Handle pretraining.
         if args.pretrain and not Step.str_is_zero(args.pretrain_training_steps):
@@ -146,15 +152,14 @@ class LotteryDesc(Desc):
         if not isinstance(replicate, int) or replicate <= 0:
             raise ValueError('Bad replicate: {}'.format(replicate))
         
-        #root:open_lth_data
-        #open_lth_data/hashname/replicate_/level_/main/
+        self.lottery_saved_folder = os.path.join(get_platform().root, self.hashname)
         return os.path.join(get_platform().root, self.hashname,
                             f'replicate_{replicate}', f'level_{pruning_level}', experiment)
 
     @property
     def display(self):
         ls = [self.dataset_hparams.display, self.model_hparams.display,
-              self.training_hparams.display, self.pruning_hparams.display]
+              self.training_hparams.display, self.pruning_hparams.display, self.client_hparams.display]
         if self.pretrain_training_hparams:
             ls += [self.pretrain_dataset_hparams.display, self.pretrain_training_hparams.display]
         return '\n'.join(ls)
