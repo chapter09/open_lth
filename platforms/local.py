@@ -6,10 +6,11 @@
 import os
 import pathlib
 
-from platforms import base
+from open_lth.platforms import base
 
 
 class Platform(base.Platform):
+
     @property
     def root(self):
         return os.path.join(pathlib.Path.home(), 'open_lth_data')
@@ -21,3 +22,7 @@ class Platform(base.Platform):
     @property
     def imagenet_root(self):
         raise NotImplementedError
+    
+
+
+

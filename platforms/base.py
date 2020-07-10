@@ -8,18 +8,19 @@ from dataclasses import dataclass
 import os
 import torch
 
-from foundations.hparams import Hparams
-import platforms.platform
+from open_lth.foundations.hparams import Hparams
+import open_lth.platforms.platform
 
 
 @dataclass
 class Platform(Hparams):
     num_workers: int = 0
+    
 
     _name: str = 'Platform Hyperparameters'
     _description: str = 'Hyperparameters that control the plaform on which the job is run.'
     _num_workers: str = 'The number of worker threads to use for data loading.'
-
+    
     # Manage the available devices and the status of distributed training.
 
     @property
