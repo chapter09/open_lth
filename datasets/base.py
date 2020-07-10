@@ -20,15 +20,6 @@ class Dataset(abc.ABC, torch.utils.data.Dataset):
     def num_test_examples() -> int:
         pass
 
-    @staticmethod
-    @abc.abstractmethod
-    def num_fl_train_examples() -> int:
-        pass
-    
-    @staticmethod
-    @abc.abstractmethod
-    def num_fl_test_examples() -> int:
-        pass
 
     @staticmethod
     @abc.abstractmethod
@@ -43,11 +34,6 @@ class Dataset(abc.ABC, torch.utils.data.Dataset):
     @staticmethod
     @abc.abstractmethod
     def get_train_set(use_augmentation: bool) -> 'Dataset':
-        pass
-
-    @classmethod
-    @abc.abstractmethod
-    def get_non_iid_train_set(cls, use_augmentation: bool, bias_fraction: float, fl_test: bool) -> 'Dataset':
         pass
 
     @staticmethod
@@ -105,9 +91,6 @@ class ImageDataset(Dataset):
     @abc.abstractmethod
     def example_to_image(self, example: np.ndarray) -> Image: pass
 
-    @abc.abstractmethod
-    def non_iid_example_to_image(self, example: np.ndarray) -> Image: pass
-
     def __init__(self, examples, labels, image_transforms=None, tensor_transforms=None,
                  joint_image_transforms=None, joint_tensor_transforms=None):
         super(ImageDataset, self).__init__(examples, labels)
@@ -124,8 +107,7 @@ class ImageDataset(Dataset):
                 self._image_transforms + [torchvision.transforms.ToTensor()] + self._tensor_transforms)
 
         example, label = self._examples[index], self._labels[index]
-        #get_non_iid already changed it to ndarray
-        example = self.non_iid_example_to_image(example)
+
         for t in self._joint_image_transforms: example, label = t(example, label)
         example = self._composed(example)
         for t in self._joint_tensor_transforms: example, label = t(example, label)
@@ -150,37 +132,7 @@ class ImageDataset(Dataset):
             return torchvision.transforms.RandomRotation(label*90)(image), label
         self._joint_image_transforms.append(rotate_transform)
 
-    @staticmethod
-    def extract(used, trainset, label, labels, n):
-        if len(trainset[label]) > n:
-            extracted = trainset[label][:n]  # Extract data
-            if label not in used.keys():
-                used[label]=[]
-            used[label].extend(extracted)  # Move data to used
-            del trainset[label][:n]  # Remove from trainset
-            return extracted
-        else:
-            print('Insufficient data in label: {}'.format(label))
-            print('Dumping used data for reuse')
-
-            # Unmark data as used
-            for label in labels:
-                trainset[label].extend(used[label])
-                used[label] = []
-
-            # Extract replenished data
-            return Dataset.extract(used, trainset, label, labels,n)
-
-    @staticmethod
-    def uniform(N,k):
-        dist = []
-        avg = N / k
-        # Make distribution
-        for i in range(k):
-            dist.append(int((i + 1) * avg) - int(i * avg))
-        # Return shuffled distribution
-        np.random.shuffle(dist)
-        return dist
+   
 
 class ShuffleSampler(torch.utils.data.sampler.Sampler):
     def __init__(self, num_examples):

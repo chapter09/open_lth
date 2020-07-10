@@ -22,11 +22,9 @@ def get(dataset_hparams: DatasetHparams, train: bool = True):
     if dataset_hparams.dataset_name in registered_datasets:
         use_augmentation = train and not dataset_hparams.do_not_augment
         if train:
-            #4 different cases: normal, fl_test:sample*0.01, non_iid
-            if dataset_hparams.bias_fraction is not None or dataset_hparams.fl_test:
-                dataset = registered_datasets[dataset_hparams.dataset_name].Dataset.get_non_iid_train_set(use_augmentation, bias_fraction=dataset_hparams.bias_fraction, fl_test=dataset_hparams.fl_test)
-            else:
-                dataset = registered_datasets[dataset_hparams.dataset_name].Dataset.get_train_set(use_augmentation)
+            # change the dataset here!
+            # change get_train_set() use index
+            dataset = registered_datasets[dataset_hparams.dataset_name].Dataset.get_train_set(use_augmentation)
         else:
             dataset = registered_datasets[dataset_hparams.dataset_name].Dataset.get_test_set()
     else:
