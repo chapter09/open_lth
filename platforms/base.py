@@ -8,13 +8,8 @@ from dataclasses import dataclass
 import os
 import torch
 
-<<<<<<< HEAD
 from ..foundations.hparams import Hparams
 from .. import platforms
-=======
-from open_lth.foundations.hparams import Hparams
-import open_lth.platforms.platform
->>>>>>> a12cc5228f2e75633f99017c1881525bf527f5e6
 
 
 @dataclass

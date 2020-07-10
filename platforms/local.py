@@ -6,11 +6,7 @@
 import os
 import pathlib
 
-<<<<<<< HEAD
 from ..platforms import base
-=======
-from open_lth.platforms import base
->>>>>>> a12cc5228f2e75633f99017c1881525bf527f5e6
 
 
 class Platform(base.Platform):
