@@ -7,9 +7,9 @@ import bisect
 import numpy as np
 import torch
 
-from foundations.hparams import TrainingHparams
-from foundations.step import Step
-from models.base import Model
+from ..foundations.hparams import TrainingHparams
+from ..foundations.step import Step
+from ..models.base import Model
 
 
 def get_optimizer(training_hparams: TrainingHparams, model: Model) -> torch.optim.Optimizer:

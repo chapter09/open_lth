@@ -9,13 +9,13 @@ from dataclasses import dataclass, replace
 import os
 from typing import Union
 
-from open_lth.cli import arg_utils
-from open_lth.datasets import registry as datasets_registry
-from open_lth.foundations.desc import Desc
-from open_lth.foundations import hparams
-from open_lth.foundations.step import Step
-from open_lth.platforms.platform import get_platform
-import open_lth.pruning.registry
+from ..cli import arg_utils
+from ..datasets import registry as datasets_registry
+from ..foundations.desc import Desc
+from ..foundations import hparams
+from ..foundations.step import Step
+from ..platforms.platform import get_platform
+from ..pruning import registry
 
 
 @dataclass
@@ -70,7 +70,7 @@ class LotteryDesc(Desc):
         pruning_strategy = arg_utils.maybe_get_arg('pruning_strategy')
         if defaults and not pruning_strategy: pruning_strategy = defaults.pruning_hparams.pruning_strategy
         if pruning_strategy:
-            pruning_hparams = open_lth.pruning.registry.get_pruning_hparams(pruning_strategy)
+            pruning_hparams = registry.get_pruning_hparams(pruning_strategy)
             if defaults and defaults.pruning_hparams.pruning_strategy == pruning_strategy:
                 def_ph = defaults.pruning_hparams
         else:
@@ -100,7 +100,7 @@ class LotteryDesc(Desc):
         model_hparams = hparams.ModelHparams.create_from_args(args)
         training_hparams = hparams.TrainingHparams.create_from_args(args)
         client_hparams = hparams.ClientHparams.create_from_args(args)
-        pruning_hparams = open_lth.pruning.registry.get_pruning_hparams(args.pruning_strategy).create_from_args(args)
+        pruning_hparams = registry.get_pruning_hparams(args.pruning_strategy).create_from_args(args)
 
         # Create the desc.
         desc = cls(model_hparams, dataset_hparams, training_hparams, pruning_hparams, client_hparams)

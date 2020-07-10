@@ -9,7 +9,7 @@ from PIL import Image
 import torch
 import torchvision
 
-from platforms.platform import get_platform
+from ..platforms.platform import get_platform
 
 
 class Dataset(abc.ABC, torch.utils.data.Dataset):

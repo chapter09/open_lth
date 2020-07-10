@@ -6,11 +6,11 @@
 import time
 import torch
 
-from datasets.base import DataLoader
-from foundations import hparams
-from foundations.step import Step
-from platforms.platform import get_platform
-from training import checkpointing
+from ..datasets.base import DataLoader
+from ..foundations import hparams
+from ..foundations.step import Step
+from ..platforms.platform import get_platform
+from ..training import checkpointing
 
 
 # Standard callbacks.

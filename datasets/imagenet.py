@@ -9,8 +9,8 @@ import os
 from PIL import Image
 import torchvision
 
-from datasets import base
-from platforms.platform import get_platform
+from ..datasets import base
+from ..platforms.platform import get_platform
 
 
 def _get_samples(root, y_name, y_num):

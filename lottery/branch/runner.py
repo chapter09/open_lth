@@ -7,9 +7,9 @@ import argparse
 from dataclasses import dataclass
 import sys
 
-from cli import arg_utils
-from foundations.runner import Runner
-from lottery.branch import registry
+from ...cli import arg_utils
+from ...foundations.runner import Runner
+from ...lottery.branch import registry
 
 
 @dataclass

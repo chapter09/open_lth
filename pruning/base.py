@@ -5,9 +5,9 @@
 
 import abc
 
-from foundations.hparams import PruningHparams
-from models import base
-from pruning.mask import Mask
+from ..foundations.hparams import PruningHparams
+from ..models import base
+from ..pruning.mask import Mask
 
 
 class Strategy(abc.ABC):

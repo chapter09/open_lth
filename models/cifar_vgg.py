@@ -6,10 +6,10 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-from foundations import hparams
-from lottery.desc import LotteryDesc
-from models import base
-from pruning import sparse_global
+from ..foundations import hparams
+from ..lottery.desc import LotteryDesc
+from ..models import base
+from ..pruning import sparse_global
 
 
 class Model(base.Model):

@@ -3,9 +3,9 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-from foundations import paths
-from foundations.step import Step
-from platforms.platform import get_platform
+from ..foundations import paths
+from ..foundations.step import Step
+from ..platforms.platform import get_platform
 
 
 class MetricLogger:

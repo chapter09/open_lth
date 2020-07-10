@@ -11,8 +11,8 @@ import sys
 import torch
 import torchvision
 
-from datasets import base
-from platforms.platform import get_platform
+from ..datasets import base
+from ..platforms.platform import get_platform
 
 
 class CIFAR10(torchvision.datasets.CIFAR10):

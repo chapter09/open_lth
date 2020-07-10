@@ -3,14 +3,14 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-import datasets.registry
-from foundations import hparams
-from foundations.step import Step
-from lottery.branch import base
-import models.registry
-from pruning.mask import Mask
-from pruning.pruned_model import PrunedModel
-from training import train
+from ... import datasets
+from ...foundations import hparams
+from ...foundations.step import Step
+from ...lottery.branch import base
+from ... import models
+from ...pruning.mask import Mask
+from ...pruning.pruned_model import PrunedModel
+from ...training import train
 
 
 class Branch(base.Branch):

@@ -3,8 +3,8 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-from models.base import Model
-from pruning.mask import Mask
+from ..models.base import Model
+from ..pruning.mask import Mask
 
 import numpy as np
 

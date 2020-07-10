@@ -6,10 +6,10 @@
 import dataclasses
 import numpy as np
 
-from foundations import hparams
-import models.base
-from pruning import base
-from pruning.mask import Mask
+from ..foundations import hparams
+from .. import models
+from ..pruning import base
+from ..pruning.mask import Mask
 
 
 @dataclasses.dataclass

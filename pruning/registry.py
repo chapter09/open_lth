@@ -6,8 +6,8 @@
 import copy
 from functools import partial
 
-from foundations.hparams import PruningHparams
-from pruning import sparse_global
+from ..foundations.hparams import PruningHparams
+from ..pruning import sparse_global
 
 registered_strategies = {'sparse_global': sparse_global.Strategy}
 

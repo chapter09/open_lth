@@ -6,7 +6,7 @@
 import os
 import pathlib
 
-from platforms import base
+from ..platforms import base
 
 
 class Platform(base.Platform):

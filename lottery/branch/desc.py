@@ -6,8 +6,8 @@
 import argparse
 from dataclasses import dataclass
 
-from foundations import desc
-from lottery.desc import LotteryDesc
+from ...foundations import desc
+from ...lottery.desc import LotteryDesc
 
 
 def make_BranchDesc(BranchHparams: type, name: str):

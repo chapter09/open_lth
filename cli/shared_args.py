@@ -5,9 +5,9 @@
 
 from dataclasses import dataclass
 
-from cli import arg_utils
-from foundations.hparams import Hparams
-import models.registry
+from ..cli import arg_utils
+from ..foundations.hparams import Hparams
+from ..models import registry
 
 
 @dataclass
@@ -30,4 +30,4 @@ class JobArgs(Hparams):
 
 def maybe_get_default_hparams():
     default_hparams = arg_utils.maybe_get_arg('default_hparams')
-    return models.registry.get_default_hparams(default_hparams) if default_hparams else None
+    return registry.get_default_hparams(default_hparams) if default_hparams else None

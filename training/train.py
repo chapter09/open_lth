@@ -6,18 +6,18 @@
 import typing
 import warnings
 
-from datasets.base import DataLoader
-import datasets.registry
-from foundations import hparams
-from foundations import paths
-from foundations.step import Step
-from models.base import Model, DataParallel, DistributedDataParallel
-import models.registry
-from platforms.platform import get_platform
-from training.checkpointing import restore_checkpoint
-from training import optimizers
-from training import standard_callbacks
-from training.metric_logger import MetricLogger
+from ..datasets.base import DataLoader
+from .. import datasets
+from ..foundations import hparams
+from ..foundations import paths
+from ..foundations.step import Step
+from ..models.base import Model, DataParallel, DistributedDataParallel
+from .. import models
+from ..platforms.platform import get_platform
+from ..training.checkpointing import restore_checkpoint
+from ..training import optimizers
+from ..training import standard_callbacks
+from ..training.metric_logger import MetricLogger
 
 try:
     import apex

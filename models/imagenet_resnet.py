@@ -7,10 +7,10 @@ from functools import partial
 import torch
 import torchvision
 
-from foundations import hparams
-from lottery.desc import LotteryDesc
-from models import base
-from pruning import sparse_global
+from ..foundations import hparams
+from ..lottery.desc import LotteryDesc
+from ..models import base
+from ..pruning import sparse_global
 
 
 class ResNet(torchvision.models.ResNet):

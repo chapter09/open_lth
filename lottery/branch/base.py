@@ -9,13 +9,13 @@ from dataclasses import dataclass, field, make_dataclass, fields
 import inspect
 from typing import List
 
-from cli import shared_args
-from foundations.desc import Desc
-from foundations.hparams import Hparams
-from foundations.runner import Runner
-from lottery.desc import LotteryDesc
-from lottery.branch.desc import make_BranchDesc
-from platforms.platform import get_platform
+from ...cli import shared_args
+from ...foundations.desc import Desc
+from ...foundations.hparams import Hparams
+from ...foundations.runner import Runner
+from ...lottery.desc import LotteryDesc
+from ...lottery.branch.desc import make_BranchDesc
+from ...platforms.platform import get_platform
 
 
 @dataclass

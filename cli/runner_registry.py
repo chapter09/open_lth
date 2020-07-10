@@ -3,10 +3,10 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-from foundations.runner import Runner
-from lottery.branch.runner import BranchRunner
-from lottery.runner import LotteryRunner
-from training.runner import TrainingRunner
+from ..foundations.runner import Runner
+from ..lottery.branch.runner import BranchRunner
+from ..lottery.runner import LotteryRunner
+from ..training.runner import TrainingRunner
 
 registered_runners = {'train': TrainingRunner, 'lottery': LotteryRunner, 'lottery_branch': BranchRunner}
 

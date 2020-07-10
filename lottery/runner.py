@@ -5,16 +5,16 @@
 
 import argparse
 
-from open_lth.cli import shared_args
-from open_lth.dataclasses import dataclass
-from open_lth.foundations.runner import Runner
-import open_lth.models.registry
-from open_lth.lottery.desc import LotteryDesc
-from open_lth.platforms.platform import get_platform
-import open_lth.pruning.registry
-from open_lth.pruning.mask import Mask
-from open_lth.pruning.pruned_model import PrunedModel
-from open_lth.training import train
+from ..cli import shared_args
+from dataclasses import dataclass
+from ..foundations.runner import Runner
+from .. import models
+from ..lottery.desc import LotteryDesc
+from ..platforms.platform import get_platform
+from .. import pruning
+from ..pruning.mask import Mask
+from ..pruning.pruned_model import PrunedModel
+from ..training import train
 
 
 @dataclass
@@ -77,23 +77,23 @@ class LotteryRunner(Runner):
     # Helper methods for running the lottery.
     def _pretrain(self):
         location = self.desc.run_path(self.replicate, 'pretrain')
-        if open_lth.models.registry.exists(location, self.desc.pretrain_end_step): return
+        if models.registry.exists(location, self.desc.pretrain_end_step): return
 
         if self.verbose and get_platform().is_primary_process: print('-'*82 + '\nPretraining\n' + '-'*82)
-        model = open_lth.models.registry.get(self.desc.model_hparams, outputs=self.desc.pretrain_outputs)
+        model = models.registry.get(self.desc.model_hparams, outputs=self.desc.pretrain_outputs)
         train.standard_train(model, location, self.desc.pretrain_dataset_hparams, self.desc.pretrain_training_hparams,
                              verbose=self.verbose, evaluate_every_epoch=self.evaluate_every_epoch)
 
     def _establish_initial_weights(self):
         location = self.desc.run_path(self.replicate, 0)
-        if open_lth.models.registry.exists(location, self.desc.train_start_step): return
+        if models.registry.exists(location, self.desc.train_start_step): return
 
-        new_model = open_lth.models.registry.get(self.desc.model_hparams, outputs=self.desc.train_outputs)
+        new_model = models.registry.get(self.desc.model_hparams, outputs=self.desc.train_outputs)
 
         # If there was a pretrained model, retrieve its final weights and adapt them for training.
         if self.desc.pretrain_training_hparams is not None:
             pretrain_loc = self.desc.run_path(self.replicate, 'pretrain')
-            old = open_lth.models.registry.load(pretrain_loc, self.desc.pretrain_end_step,
+            old = models.registry.load(pretrain_loc, self.desc.pretrain_end_step,
                                        self.desc.model_hparams, self.desc.pretrain_outputs)
             state_dict = {k: v for k, v in old.state_dict().items()}
 
@@ -107,10 +107,10 @@ class LotteryRunner(Runner):
 
     def _train_level(self, level: int):
         location = self.desc.run_path(self.replicate, level)
-        if open_lth.models.registry.exists(location, self.desc.train_end_step): return
+        if models.registry.exists(location, self.desc.train_end_step): return
 
         #load model here: global path
-        model = open_lth.models.registry.load(self.desc.run_path(self.replicate, 0), self.desc.train_start_step,
+        model = models.registry.load(self.desc.run_path(self.replicate, 0), self.desc.train_start_step,
                                      self.desc.model_hparams, self.desc.train_outputs)
         pruned_model = PrunedModel(model, Mask.load(location))
         pruned_model.save(location, self.desc.train_start_step)
@@ -125,9 +125,9 @@ class LotteryRunner(Runner):
         if Mask.exists(new_location): return
 
         if level == 0:
-            Mask.ones_like(open_lth.models.registry.get(self.desc.model_hparams)).save(new_location)
+            Mask.ones_like(models.registry.get(self.desc.model_hparams)).save(new_location)
         else:
             old_location = self.desc.run_path(self.replicate, level-1)
-            model = open_lth.models.registry.load(old_location, self.desc.train_end_step,
+            model = models.registry.load(old_location, self.desc.train_end_step,
                                          self.desc.model_hparams, self.desc.train_outputs)
-            open_lth.pruning.registry.get(self.desc.pruning_hparams)(model, Mask.load(old_location)).save(new_location)
+            pruning.registry.get(self.desc.pruning_hparams)(model, Mask.load(old_location)).save(new_location)

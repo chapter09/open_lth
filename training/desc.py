@@ -7,12 +7,12 @@ import argparse
 from dataclasses import dataclass
 import os
 
-from datasets import registry as datasets_registry
-from foundations import desc
-from foundations import hparams
-from foundations.step import Step
-from lottery.desc import LotteryDesc
-from platforms.platform import get_platform
+from ..datasets import registry as datasets_registry
+from ..foundations import desc
+from ..foundations import hparams
+from ..foundations.step import Step
+from ..lottery.desc import LotteryDesc
+from ..platforms.platform import get_platform
 
 
 @dataclass

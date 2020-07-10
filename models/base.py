@@ -7,10 +7,10 @@ import abc
 import torch
 import typing
 
-from foundations import paths
-from foundations.step import Step
-import lottery.desc
-from platforms.platform import get_platform
+from ..foundations import paths
+from ..foundations.step import Step
+from ..lottery import desc
+from ..platforms.platform import get_platform
 
 
 class Model(abc.ABC, torch.nn.Module):
@@ -54,7 +54,7 @@ class Model(abc.ABC, torch.nn.Module):
 
     @staticmethod
     @abc.abstractmethod
-    def default_hparams() -> 'lottery.desc.LotteryDesc':
+    def default_hparams() -> 'desc.LotteryDesc':
         """The default hyperparameters for training this model and running lottery ticket."""
 
         pass

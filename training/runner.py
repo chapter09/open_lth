@@ -6,12 +6,12 @@
 import argparse
 from dataclasses import dataclass
 
-from cli import shared_args
-from foundations.runner import Runner
-import models.registry
-from platforms.platform import get_platform
-from training import train
-from training.desc import TrainingDesc
+from ..cli import shared_args
+from ..foundations.runner import Runner
+from .. import models
+from ..platforms.platform import get_platform
+from ..training import train
+from ..training.desc import TrainingDesc
 
 
 @dataclass

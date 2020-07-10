@@ -5,12 +5,12 @@
 
 import torch
 
-from lottery.branch import base
-import models.registry
-from pruning.mask import Mask
-from pruning.pruned_model import PrunedModel
-from training import train
-from utils.tensor_utils import vectorize, unvectorize, shuffle_tensor, shuffle_state_dict
+from ...lottery.branch import base
+from ...models import registry
+from ...pruning.mask import Mask
+from ...pruning.pruned_model import PrunedModel
+from ...training import train
+from ...utils.tensor_utils import vectorize, unvectorize, shuffle_tensor, shuffle_state_dict
 
 
 class Branch(base.Branch):
@@ -60,7 +60,7 @@ class Branch(base.Branch):
             raise ValueError(f'Invalid starting point {start_at}')
 
         # Train the model with the new mask.
-        model = PrunedModel(models.registry.load(self.level_root, state_step, self.lottery_desc.model_hparams), mask)
+        model = PrunedModel(registry.load(self.level_root, state_step, self.lottery_desc.model_hparams), mask)
         train.standard_train(model, self.branch_root, self.lottery_desc.dataset_hparams,
                              self.lottery_desc.training_hparams, start_step=start_step, verbose=self.verbose)
 

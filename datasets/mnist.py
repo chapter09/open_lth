@@ -11,8 +11,8 @@ from PIL import Image
 import torchvision
 import torch
 
-from datasets import base
-from platforms.platform import get_platform
+from ..datasets import base
+from ..platforms.platform import get_platform
 
 
 class Dataset(base.ImageDataset):

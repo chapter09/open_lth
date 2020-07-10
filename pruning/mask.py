@@ -7,9 +7,9 @@ import json
 import numpy as np
 import torch
 
-from foundations import paths
-from models import base
-from platforms.platform import get_platform
+from ..foundations import paths
+from ..models import base
+from ..platforms.platform import get_platform
 
 
 class Mask(dict):

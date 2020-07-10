@@ -6,9 +6,9 @@
 import argparse
 import sys
 
-from cli import runner_registry
-from cli import arg_utils
-import platforms.registry
+from open_lth.cli import runner_registry
+from open_lth.cli import arg_utils
+import open_lth.platforms.registry
 
 
 def main():
@@ -39,8 +39,8 @@ def main():
 
     # Get the platform arguments.
     platform_name = arg_utils.maybe_get_arg('platform') or 'local'
-    if platform_name and platform_name in platforms.registry.registered_platforms:
-        platforms.registry.get(platform_name).add_args(parser)
+    if platform_name and platform_name in open_lth.platforms.registry.registered_platforms:
+        open_lth.platforms.registry.get(platform_name).add_args(parser)
     else:
         print(f'Invalid platform name: {platform_name}')
         sys.exit(1)
@@ -48,8 +48,10 @@ def main():
     # Add arguments for the various runners.
     runner_registry.get(runner_name).add_args(parser)
 
+    
     args = parser.parse_args()
-    platform = platforms.registry.get(platform_name).create_from_args(args)
+
+    platform = open_lth.platforms.registry.get(platform_name).create_from_args(args)
 
     if args.display_output_location:
         platform.run_job(runner_registry.get(runner_name).create_from_args(args).display_output_location)

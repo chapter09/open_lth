@@ -5,10 +5,10 @@
 
 import torch
 
-from foundations import paths
-from foundations.step import Step
-from platforms.platform import get_platform
-from training.metric_logger import MetricLogger
+from ..foundations import paths
+from ..foundations.step import Step
+from ..platforms.platform import get_platform
+from ..training.metric_logger import MetricLogger
 
 
 def save_checkpoint_callback(output_location, step, model, optimizer, logger):
