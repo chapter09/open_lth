@@ -24,11 +24,6 @@ class Dataset(base.ImageDataset):
     @staticmethod
     def num_test_examples(): return 10000
 
-    @staticmethod
-    def num_fl_train_examples(): return 600
-
-    @staticmethod
-    def num_fl_test_examples(): return 100
 
     @staticmethod
     def num_classes(): return 10
@@ -47,7 +42,7 @@ class Dataset(base.ImageDataset):
         return Dataset(test_set.data, test_set.targets)
 
     @classmethod
-    def get_non_iid_train_set(cls, use_augmentation, bias_fraction, fl_test):
+    def get_non_iid_train_set(cls, use_augmentation, bias_fraction):
         train_set = torchvision.datasets.MNIST(
             train=True, root=os.path.join(get_platform().dataset_root, 'mnist_non_iid'), download=True)
         labels = list(train_set.classes)
@@ -63,10 +58,7 @@ class Dataset(base.ImageDataset):
         trainset = grouped_data
 
         #total data number:
-        if fl_test:
-            total_size = cls.num_fl_train_examples()
-        else:
-            total_size = cls.num_train_examples()
+        total_size = cls.num_train_examples()
         
         if bias_fraction is None:
             dist = Dataset.uniform(total_size, cls.num_classes())

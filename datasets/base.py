@@ -109,6 +109,8 @@ class ImageDataset(Dataset):
         example, label = self._examples[index], self._labels[index]
 
         for t in self._joint_image_transforms: example, label = t(example, label)
+        if torch.is_tensor(example):
+            example = example.numpy()
         example = self._composed(example)
         for t in self._joint_tensor_transforms: example, label = t(example, label)
         return example, label

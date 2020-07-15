@@ -64,7 +64,7 @@ def iterations_per_epoch(dataset_hparams: DatasetHparams):
     """Get the number of iterations per training epoch."""
 
     if dataset_hparams.dataset_name in registered_datasets:
-        num_train_examples = registered_datasets[dataset_hparams.dataset_name].Dataset.num_train_examples()
+        num_train_examples = len(list(dataset_hparams.index_list.split(' ')))
     else:
         raise ValueError('No such dataset: {}'.format(dataset_hparams.dataset_name))
 
