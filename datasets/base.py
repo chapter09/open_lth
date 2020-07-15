@@ -189,12 +189,13 @@ class DataLoader(torch.utils.data.DataLoader):
         else:
             self._sampler = ShuffleSampler(len(dataset))
 
+        #need to change
         self._iterations_per_epoch = np.ceil(len(dataset) / batch_size).astype(int)
 
         if get_platform().is_distributed:
             batch_size //= get_platform().world_size
             num_workers //= get_platform().world_size
-
+        
         super(DataLoader, self).__init__(
             dataset, batch_size, sampler=self._sampler, num_workers=num_workers,
             pin_memory=pin_memory and get_platform().torch_device.type == 'cuda')

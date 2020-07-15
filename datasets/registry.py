@@ -4,6 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import numpy as np
+import torch
 
 from ..datasets import base, cifar10, mnist, imagenet
 from ..foundations.hparams import DatasetHparams
@@ -52,18 +53,18 @@ def get(dataset_hparams: DatasetHparams, train: bool = True):
             dataset.unsupervised_rotation(seed=seed)
 
     # Create the loader.
+    indices = list(dataset_hparams.index_list.split(' '))
+    indices = [int(index) for index in indices]
+    subset = torch.utils.data.Subset(dataset, indices)
     return registered_datasets[dataset_hparams.dataset_name].DataLoader(
-        dataset, batch_size=dataset_hparams.batch_size, num_workers=get_platform().num_workers)
+        subset, batch_size=dataset_hparams.batch_size, num_workers=get_platform().num_workers)
 
 
 def iterations_per_epoch(dataset_hparams: DatasetHparams):
     """Get the number of iterations per training epoch."""
 
     if dataset_hparams.dataset_name in registered_datasets:
-        if dataset_hparams.fl_test:
-            num_train_examples = registered_datasets[dataset_hparams.dataset_name].Dataset.num_fl_train_examples()
-        else:
-            num_train_examples = registered_datasets[dataset_hparams.dataset_name].Dataset.num_train_examples()
+        num_train_examples = registered_datasets[dataset_hparams.dataset_name].Dataset.num_train_examples()
     else:
         raise ValueError('No such dataset: {}'.format(dataset_hparams.dataset_name))
 

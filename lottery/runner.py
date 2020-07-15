@@ -4,6 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import argparse
+import torch
 
 from ..cli import shared_args
 from dataclasses import dataclass
@@ -21,6 +22,7 @@ from ..training import train
 class LotteryRunner(Runner):
     replicate: int
     levels: int
+    global_model_path: str
     desc: LotteryDesc
     verbose: bool = True
     evaluate_every_epoch: bool = True
@@ -52,7 +54,7 @@ class LotteryRunner(Runner):
 
     @staticmethod
     def create_from_args(args: argparse.Namespace) -> 'LotteryRunner':
-        return LotteryRunner(args.replicate, args.levels, LotteryDesc.create_from_args(args),
+        return LotteryRunner(args.replicate, args.levels, args.global_model_path, LotteryDesc.create_from_args(args),
                              not args.quiet, not args.evaluate_only_at_end)
 
     def display_output_location(self):
@@ -88,7 +90,13 @@ class LotteryRunner(Runner):
         location = self.desc.run_path(self.replicate, 0)
         if models.registry.exists(location, self.desc.train_start_step): return
 
+        
+        #on server, init the global model
         new_model = models.registry.get(self.desc.model_hparams, outputs=self.desc.train_outputs)
+        
+        if self.global_model_path is not None:
+            #on client, load the global model to start
+            new_model.load_state_dict(torch.load(self.global_model_path))
 
         # If there was a pretrained model, retrieve its final weights and adapt them for training.
         if self.desc.pretrain_training_hparams is not None:
@@ -108,8 +116,7 @@ class LotteryRunner(Runner):
     def _train_level(self, level: int):
         location = self.desc.run_path(self.replicate, level)
         if models.registry.exists(location, self.desc.train_end_step): return
-
-        #load model here: global path
+    
         model = models.registry.load(self.desc.run_path(self.replicate, 0), self.desc.train_start_step,
                                      self.desc.model_hparams, self.desc.train_outputs)
         pruned_model = PrunedModel(model, Mask.load(location))
