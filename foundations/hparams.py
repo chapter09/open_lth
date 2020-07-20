@@ -84,7 +84,9 @@ class Hparams(abc.ABC):
     @property
     def display(self):
         nondefault_fields = [f for f in fields(self)
-                             if not f.name.startswith('_') and ((f.default is MISSING) or getattr(self, f.name))]
+                             if not f.name.startswith('_') and 
+                                not f.name == "index_list" and
+                             ((f.default is MISSING) or getattr(self, f.name))]
         s = self._name + '\n'
         return s + '\n'.join(f'    * {f.name} => {getattr(self, f.name)}' for f in nondefault_fields)
 
@@ -112,7 +114,6 @@ class DatasetHparams(Hparams):
     random_labels_fraction: float = None
     unsupervised_labels: str = None
     blur_factor: int = None
-    bias_fraction: float = None
     client_num: int = None
     index_list: str = None
        
@@ -127,7 +128,6 @@ class DatasetHparams(Hparams):
     _random_labels_fraction: str = 'Apply random labels to a fraction of the training set: float in (0, 1]'
     _unsupervised_labels: str = 'Replace the standard labels with alternative, unsupervised labels. Example: rotation'
     _blur_factor: str = 'Blur the training set by downsampling and then upsampling by this multiple.'
-    _bias_fraction: str = 'bias fraction for non-iid data'
     _client_num: str = 'total clients number.'
     _indext_list: str = 'chosen example index list converted to str.'
 
