@@ -76,10 +76,12 @@ def create_eval_callback(eval_name: str, loader: DataLoader, verbose=False):
             logger.add('{}_loss'.format(eval_name), step, total_loss / example_count)
             logger.add('{}_accuracy'.format(eval_name), step, total_correct / example_count)
             logger.add('{}_examples'.format(eval_name), step, example_count)
+            
 
             if verbose:
                 nonlocal time_of_last_call
                 elapsed = 0 if time_of_last_call is None else time.time() - time_of_last_call
+                logger.add('{}_second elapse'.format(eval_name), step, elapsed)
                 print('{}\tep {:03d}\tit {:03d}\tloss {:.3f}\tacc {:.2f}%\tex {:d}\ttime {:.2f}s'.format(
                     eval_name, step.ep, step.it, total_loss/example_count, 100 * total_correct/example_count,
                     int(example_count), elapsed))
