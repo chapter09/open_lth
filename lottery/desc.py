@@ -29,7 +29,7 @@ class LotteryDesc(Desc):
     client_hparams: hparams.ClientHparams
     pretrain_dataset_hparams: hparams.DatasetHparams = None
     pretrain_training_hparams: hparams.TrainingHparams = None
-    lottery_saved_folder = None
+    data_saved_folder = None
     
 
     @staticmethod
@@ -152,7 +152,7 @@ class LotteryDesc(Desc):
         if not isinstance(replicate, int) or replicate <= 0:
             raise ValueError('Bad replicate: {}'.format(replicate))
         
-        self.lottery_saved_folder = os.path.join(get_platform().root, self.hashname)
+        self.data_saved_folder = os.path.join(get_platform().root, self.hashname)
         return os.path.join(get_platform().root, self.hashname,
                             f'replicate_{replicate}', f'level_{pruning_level}', experiment)
 

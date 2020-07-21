@@ -22,6 +22,8 @@ class TrainingDesc(desc.Desc):
     model_hparams: hparams.ModelHparams
     dataset_hparams: hparams.DatasetHparams
     training_hparams: hparams.TrainingHparams
+    client_hparams: hparams.ClientHparams
+    data_saved_folder =  None
 
     @staticmethod
     def name_prefix(): return 'train'
@@ -31,13 +33,15 @@ class TrainingDesc(desc.Desc):
         hparams.DatasetHparams.add_args(parser, defaults=defaults.dataset_hparams if defaults else None)
         hparams.ModelHparams.add_args(parser, defaults=defaults.model_hparams if defaults else None)
         hparams.TrainingHparams.add_args(parser, defaults=defaults.training_hparams if defaults else None)
+        hparams.ClientHparams.add_args(parser, defaults=defaults.client_hparams if defaults else None)
 
     @staticmethod
     def create_from_args(args: argparse.Namespace) -> 'TrainingDesc':
         dataset_hparams = hparams.DatasetHparams.create_from_args(args)
         model_hparams = hparams.ModelHparams.create_from_args(args)
         training_hparams = hparams.TrainingHparams.create_from_args(args)
-        return TrainingDesc(model_hparams, dataset_hparams, training_hparams)
+        client_hparams = hparams.ClientHparams.create_from_args(args)
+        return TrainingDesc(model_hparams, dataset_hparams, training_hparams, client_hparams)
 
     @property
     def end_step(self):
@@ -49,8 +53,10 @@ class TrainingDesc(desc.Desc):
         datasets_registry.num_classes(self.dataset_hparams)
 
     def run_path(self, replicate, experiment='main'):
+        self.data_saved_folder = os.path.join(get_platform().root, self.hashname)
         return os.path.join(get_platform().root, self.hashname, f'replicate_{replicate}', experiment)
 
     @property
     def display(self):
-        return '\n'.join([self.dataset_hparams.display, self.model_hparams.display, self.training_hparams.display])
+        return '\n'.join([self.dataset_hparams.display, self.model_hparams.display, 
+                            self.training_hparams.display, self.client_hparams.display])
