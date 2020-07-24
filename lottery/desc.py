@@ -153,7 +153,7 @@ class LotteryDesc(Desc):
             raise ValueError('Bad replicate: {}'.format(replicate))
         
         
-        self.data_saved_folder = os.path.join(get_platform().root, self.current_time,
+        self.data_saved_folder = os.path.join(get_platform().root, self.client_hparams.prefix_time,
                                     str(self.client_hparams.round_num),
                                     str(self.client_hparams.client_id), self.hashname)
         return os.path.join(self.data_saved_folder,

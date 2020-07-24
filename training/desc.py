@@ -53,7 +53,7 @@ class TrainingDesc(desc.Desc):
         datasets_registry.num_classes(self.dataset_hparams)
 
     def run_path(self, replicate, experiment='main'):
-        self.data_saved_folder = os.path.join(get_platform().root, self.current_time,
+        self.data_saved_folder = os.path.join(get_platform().root, self.client_hparams.prefix_time,
                                     str(self.client_hparams.round_num),
                                     str(self.client_hparams.client_id), self.hashname)
         return os.path.join(self.data_saved_folder, f'replicate_{replicate}', experiment)

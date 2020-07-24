@@ -199,8 +199,10 @@ class PruningHparams(Hparams):
 class ClientHparams(Hparams):
     client_id: int 
     round_num: int 
+    prefix_time: str
 
     _name: str = 'Client Hyperparameters'
     _description: str = 'Hyperparameters that describe which client is trained on which round.'
     _client_id: str = 'client id.'
     _round_num: str = 'fl learning round number.'
+    _prefix_time: str = 'a time stamp as prefix of path to save data'
