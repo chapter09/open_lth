@@ -7,6 +7,8 @@ import abc
 import argparse
 from dataclasses import dataclass, fields
 import hashlib
+from datetime import datetime
+import pytz
 
 from open_lth.foundations.hparams import Hparams
 from open_lth.foundations import paths
@@ -37,6 +39,12 @@ class Desc(abc.ABC):
     
         hash_str = hashlib.md5(';'.join(hparams_strs).encode('utf-8')).hexdigest()
         return f'{self.name_prefix()}_{hash_str}'
+
+    @property
+    def current_time(self) -> str:
+        tz_NY = pytz.timezone('America/New_York') 
+        datetime_NY = datetime.now(tz_NY)
+        return datetime_NY.strftime("%H:%M:%S")
 
     @staticmethod
     @abc.abstractmethod
