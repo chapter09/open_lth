@@ -10,10 +10,20 @@ from ..platforms import base
 
 
 class Platform(base.Platform):
+    
+    _root: str = '/mnt/open_lth_data'
 
     @property
-    def root(self):
+    def base(self):
         return '/mnt/open_lth_data'
+
+    @property
+    def root(self):        
+        return self._root
+
+    @root.setter
+    def root(self, value):
+        self._root = value
 
     @property
     def dataset_root(self):

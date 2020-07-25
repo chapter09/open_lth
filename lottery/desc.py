@@ -29,8 +29,6 @@ class LotteryDesc(Desc):
     client_hparams: hparams.ClientHparams
     pretrain_dataset_hparams: hparams.DatasetHparams = None
     pretrain_training_hparams: hparams.TrainingHparams = None
-    data_saved_folder = None
-    
 
     @staticmethod
     def name_prefix(): return 'lottery'
@@ -100,34 +98,44 @@ class LotteryDesc(Desc):
         model_hparams = hparams.ModelHparams.create_from_args(args)
         training_hparams = hparams.TrainingHparams.create_from_args(args)
         client_hparams = hparams.ClientHparams.create_from_args(args)
-        pruning_hparams = registry.get_pruning_hparams(args.pruning_strategy).create_from_args(args)
+        pruning_hparams = registry.get_pruning_hparams(
+            args.pruning_strategy).create_from_args(args)
 
         # Create the desc.
         desc = cls(model_hparams, dataset_hparams, training_hparams, pruning_hparams, client_hparams)
 
         # Handle pretraining.
         if args.pretrain and not Step.str_is_zero(args.pretrain_training_steps):
-            desc.pretrain_dataset_hparams = hparams.DatasetHparams.create_from_args(args, prefix='pretrain')
+            desc.pretrain_dataset_hparams = \
+                hparams.DatasetHparams.create_from_args(args, prefix='pretrain')
             desc.pretrain_dataset_hparams._name = 'Pretraining ' + desc.pretrain_dataset_hparams._name
-            desc.pretrain_training_hparams = hparams.TrainingHparams.create_from_args(args, prefix='pretrain')
-            desc.pretrain_training_hparams._name = 'Pretraining ' + desc.pretrain_training_hparams._name
-        elif 'rewinding_steps' in args and args.rewinding_steps and not Step.str_is_zero(args.rewinding_steps):
+            desc.pretrain_training_hparams = \
+                hparams.TrainingHparams.create_from_args(args, prefix='pretrain')
+            desc.pretrain_training_hparams._name = \
+                'Pretraining ' + desc.pretrain_training_hparams._name
+        elif 'rewinding_steps' in args \
+            and args.rewinding_steps \
+            and not Step.str_is_zero(args.rewinding_steps):
+            
             desc.pretrain_dataset_hparams = copy.deepcopy(dataset_hparams)
             desc.pretrain_dataset_hparams._name = 'Pretraining ' + desc.pretrain_dataset_hparams._name
             desc.pretrain_training_hparams = copy.deepcopy(training_hparams)
-            desc.pretrain_training_hparams._name = 'Pretraining ' + desc.pretrain_training_hparams._name
+            desc.pretrain_training_hparams._name = \
+                'Pretraining ' + desc.pretrain_training_hparams._name
             desc.pretrain_training_hparams.training_steps = args.rewinding_steps
 
         return desc
 
     def str_to_step(self, s: str, pretrain: bool = False) -> Step:
         dataset_hparams = self.pretrain_dataset_hparams if pretrain else self.dataset_hparams
-        iterations_per_epoch = datasets_registry.iterations_per_epoch(dataset_hparams)
+        iterations_per_epoch = \
+            datasets_registry.iterations_per_epoch(dataset_hparams)
         return Step.from_str(s, iterations_per_epoch)
 
     @property
     def pretrain_end_step(self):
-        return self.str_to_step(self.pretrain_training_hparams.training_steps, True)
+        return self.str_to_step(\
+            self.pretrain_training_hparams.training_steps, True)
 
     @property
     def train_start_step(self):
@@ -146,15 +154,18 @@ class LotteryDesc(Desc):
     def train_outputs(self):
         datasets_registry.num_classes(self.dataset_hparams)
 
-    def run_path(self, replicate: int, pruning_level: Union[str, int], experiment: str = 'main'):
+    def run_path(self, replicate: int, pruning_level: Union[str, int], \
+        experiment: str = 'main'):
+        
         """The location where any run is stored."""
 
         if not isinstance(replicate, int) or replicate <= 0:
             raise ValueError('Bad replicate: {}'.format(replicate))
         
-        
-        self.data_saved_folder = os.path.join(get_platform().root, str(self.client_hparams.round_num),
-                                    str(self.client_hparams.client_id), self.hashname)
+        self.data_saved_folder = os.path.join(
+            get_platform().root, str(self.client_hparams.round_num),
+            str(self.client_hparams.client_id), self.hashname)
+
         return os.path.join(self.data_saved_folder,
                             f'replicate_{replicate}', f'level_{pruning_level}', experiment)
 

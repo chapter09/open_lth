@@ -15,7 +15,6 @@ from .. import platforms
 @dataclass
 class Platform(Hparams):
     num_workers: int = 0
-    
 
     _name: str = 'Platform Hyperparameters'
     _description: str = 'Hyperparameters that control the plaform on which the job is run.'
