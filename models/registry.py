@@ -8,11 +8,17 @@ import torch
 from ..foundations import paths
 from ..foundations.hparams import ModelHparams
 from ..foundations.step import Step
-from ..models import cifar_resnet, cifar_vgg, mnist_lenet, imagenet_resnet
+from ..models import cifar_resnet, cifar_vgg, mnist_lenet, mnist_cnn, imagenet_resnet
 from ..models import bn_initializers, initializers
 from ..platforms.platform import get_platform
 
-registered_models = [mnist_lenet.Model, cifar_resnet.Model, cifar_vgg.Model, imagenet_resnet.Model]
+registered_models = [
+    mnist_lenet.Model, 
+    mnist_cnn.Model, 
+    cifar_resnet.Model, 
+    cifar_vgg.Model, 
+    imagenet_resnet.Model
+]
 
 
 def get(model_hparams: ModelHparams, outputs=None):
@@ -39,7 +45,8 @@ def get(model_hparams: ModelHparams, outputs=None):
     model = None
     for registered_model in registered_models:
         if registered_model.is_valid_model_name(model_hparams.model_name):
-            model = registered_model.get_model_from_name(model_hparams.model_name, init_fn, outputs)
+            model = registered_model.get_model_from_name(
+                model_hparams.model_name, init_fn, outputs)
             break
 
     if model is None:
