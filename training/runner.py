@@ -5,6 +5,7 @@
 
 import argparse
 import torch
+import os
 from dataclasses import dataclass
 
 from ..cli import shared_args
@@ -50,7 +51,7 @@ class TrainingRunner(Runner):
         new_model = models.registry.get(self.desc.model_hparams)
         if self.global_model_path is not None:
             #on client, load the global model to start
-            new_model.load_state_dict(torch.load(self.global_model_path))
+            new_model.load_state_dict(torch.load(os.path.join(self.global_model_path, 'global.pth')))
         train.standard_train(
             new_model,self.desc.run_path(self.replicate),
             self.desc.dataset_hparams, self.desc.training_hparams, evaluate_every_epoch=self.evaluate_every_epoch)

@@ -5,6 +5,7 @@
 
 import argparse
 import torch
+import os
 
 from ..cli import shared_args
 from dataclasses import dataclass
@@ -89,14 +90,14 @@ class LotteryRunner(Runner):
     def _establish_initial_weights(self):
         location = self.desc.run_path(self.replicate, 0)
         if models.registry.exists(location, self.desc.train_start_step): return
-
         
         #on server, init the global model
         new_model = models.registry.get(self.desc.model_hparams, outputs=self.desc.train_outputs)
         
         if self.global_model_path is not None:
             #on client, load the global model to start
-            new_model.load_state_dict(torch.load(self.global_model_path))
+            
+            new_model.load_state_dict(torch.load(os.path.join(self.global_model_path, 'global.pth')))
 
         # If there was a pretrained model, retrieve its final weights and adapt them for training.
         if self.desc.pretrain_training_hparams is not None:
@@ -134,7 +135,14 @@ class LotteryRunner(Runner):
         if Mask.exists(new_location): return
 
         if level == 0:
-            Mask.ones_like(models.registry.get(self.desc.model_hparams)).save(new_location)
+            mask_path = self.global_model_path + f'/mask.pth'
+            if os.path.exists(mask_path):
+                #mask.load: Mask(get_platform().load_model(paths.mask(output_location)))
+                #load_model: torch.load
+                Mask(torch.load(mask_path)).save(new_location)
+
+            else:
+                Mask.ones_like(models.registry.get(self.desc.model_hparams)).save(new_location)
         else:
             old_location = self.desc.run_path(self.replicate, level-1)
             model = models.registry.load(old_location, self.desc.train_end_step,

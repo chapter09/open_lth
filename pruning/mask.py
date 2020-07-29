@@ -42,10 +42,10 @@ class Mask(dict):
         get_platform().save_model({k: v.cpu().int() for k, v in self.items()}, paths.mask(output_location))
 
         # Create a sparsity report.
-        total_weights = np.sum([v.size for v in self.numpy().values()]).item()
-        total_unpruned = np.sum([np.sum(v) for v in self.numpy().values()]).item()
-        with get_platform().open(paths.sparsity_report(output_location), 'w') as fp:
-            fp.write(json.dumps({'total': float(total_weights), 'unpruned': float(total_unpruned)}, indent=4))
+        #total_weights = np.sum([v.size for v in self.numpy().values()]).item()
+        #total_unpruned = np.sum([np.sum(v) for v in self.numpy().values()]).item()
+        #with get_platform().open(paths.sparsity_report(output_location), 'w') as fp:
+            #fp.write(json.dumps({'total': float(total_weights), 'unpruned': float(total_unpruned)}, indent=4))
 
     @staticmethod
     def load(output_location):
