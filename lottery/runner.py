@@ -126,9 +126,10 @@ class LotteryRunner(Runner):
             print('-'*82 + '\nPruning Level {}\n'.format(level) + '-'*82)
 
         #train dataloader interface here. 
-        train.standard_train(pruned_model, location, self.desc.dataset_hparams, self.desc.training_hparams,
-                             start_step=self.desc.train_start_step, verbose=self.verbose,
-                             evaluate_every_epoch=self.evaluate_every_epoch)
+        train.standard_train(
+            pruned_model, location, self.desc.dataset_hparams, \
+            self.desc.training_hparams,start_step=self.desc.train_start_step, \
+            verbose=self.verbose, evaluate_every_epoch=self.evaluate_every_epoch)
 
     def _prune_level(self, level: int):
         new_location = self.desc.run_path(self.replicate, level)
@@ -138,9 +139,9 @@ class LotteryRunner(Runner):
             mask_path = self.global_model_path + f'/mask.pth'
             if os.path.exists(mask_path):
                 #mask.load: Mask(get_platform().load_model(paths.mask(output_location)))
-                #load_model: torch.load
+                #load_model: torch.load                
                 Mask(torch.load(mask_path)).save(new_location)
-
+                print(f'Loading mask from last round and save to {new_location}')
             else:
                 Mask.ones_like(models.registry.get(self.desc.model_hparams)).save(new_location)
         else:
