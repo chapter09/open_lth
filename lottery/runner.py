@@ -136,10 +136,12 @@ class LotteryRunner(Runner):
 
         if level == 0:
             mask_path = self.global_model_path + f'/mask.pth'
+            model_path = self.global_model_path+f'/global.pth'
             if os.path.exists(mask_path):
-                #mask.load: Mask(get_platform().load_model(paths.mask(output_location)))
-                #load_model: torch.load
-                Mask(torch.load(mask_path)).save(new_location)
+                model = models.registry.get(self.desc.model_hparams, self.desc.train_outputs)
+                model.load_state_dict(torch.load(model_path))
+
+                pruning.registry.get(self.desc.pruning_hparams)(model, Mask(torch.load(mask_path))).save(new_location)
 
             else:
                 Mask.ones_like(models.registry.get(self.desc.model_hparams)).save(new_location)
