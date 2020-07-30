@@ -136,14 +136,7 @@ class LotteryRunner(Runner):
         if Mask.exists(new_location): return
 
         if level == 0:
-            mask_path = self.global_model_path + f'/mask.pth'
-            if os.path.exists(mask_path):
-                #mask.load: Mask(get_platform().load_model(paths.mask(output_location)))
-                #load_model: torch.load                
-                Mask(torch.load(mask_path)).save(new_location)
-                print(f'Loading mask from last round and save to {new_location}')
-            else:
-                Mask.ones_like(models.registry.get(self.desc.model_hparams)).save(new_location)
+            Mask.ones_like(models.registry.get(self.desc.model_hparams)).save(new_location)
         else:
             old_location = self.desc.run_path(self.replicate, level-1)
             model = models.registry.load(old_location, self.desc.train_end_step,
