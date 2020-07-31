@@ -8,7 +8,7 @@ import torch
 from ..foundations import paths
 from ..foundations.hparams import ModelHparams
 from ..foundations.step import Step
-from ..models import cifar_resnet, cifar_vgg, mnist_lenet, mnist_cnn, imagenet_resnet
+from ..models import cifar_resnet, cifar_vgg, mnist_lenet, mnist_cnn, imagenet_resnet, fashion_cnn
 from ..models import bn_initializers, initializers
 from ..platforms.platform import get_platform
 
@@ -17,7 +17,8 @@ registered_models = [
     mnist_cnn.Model, 
     cifar_resnet.Model, 
     cifar_vgg.Model, 
-    imagenet_resnet.Model
+    imagenet_resnet.Model,
+    fashion_cnn.Model
 ]
 
 
