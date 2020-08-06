@@ -6,11 +6,12 @@
 import numpy as np
 import torch
 
-from ..datasets import base, cifar10, mnist, imagenet
+from ..datasets import base, cifar10, mnist, imagenet, celeba
 from ..foundations.hparams import DatasetHparams
 from ..platforms.platform import get_platform
 
-registered_datasets = {'cifar10': cifar10, 'mnist': mnist, 'imagenet': imagenet}
+registered_datasets = {'cifar10': cifar10, 'mnist': mnist, 
+                        'imagenet': imagenet, 'celeba': celeba}
 
 
 def get(dataset_hparams: DatasetHparams, train: bool = True):
