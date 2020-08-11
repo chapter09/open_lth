@@ -6,11 +6,12 @@
 import numpy as np
 import torch
 
-from ..datasets import base, cifar10, mnist, imagenet, fashion_mnist
+from ..datasets import base, cifar10, mnist, imagenet, celeba
 from ..foundations.hparams import DatasetHparams
 from ..platforms.platform import get_platform
 
-registered_datasets = {'cifar10': cifar10, 'mnist': mnist, 'imagenet': imagenet, 'fashion_mnist': fashion_mnist}
+registered_datasets = {'cifar10': cifar10, 'mnist': mnist, 
+                        'imagenet': imagenet, 'celeba': celeba}
 
 
 def get(dataset_hparams: DatasetHparams, train: bool = True):
@@ -23,8 +24,6 @@ def get(dataset_hparams: DatasetHparams, train: bool = True):
     if dataset_hparams.dataset_name in registered_datasets:
         use_augmentation = train and not dataset_hparams.do_not_augment
         if train:
-            # change the dataset here!
-            # change get_train_set() use index
             dataset = registered_datasets[dataset_hparams.dataset_name].Dataset.get_train_set(use_augmentation)
             indices = list(dataset_hparams.index_list.split(' '))
             indices = [int(index) for index in indices]

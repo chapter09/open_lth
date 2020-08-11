@@ -110,9 +110,7 @@ class ImageDataset(Dataset):
         example, label = self._examples[index], self._labels[index]
 
         for t in self._joint_image_transforms: example, label = t(example, label)
-        #for mnist: should be PILimage/ndarray, got tensor
-        #for cifar10: should be PILimage, got ndarray
-        
+
         example = self._composed(example)
         for t in self._joint_tensor_transforms: example, label = t(example, label)
         return example, label

@@ -149,7 +149,10 @@ def standard_train(
         get_platform().exists(paths.logger(output_location))): return
 
     train_loader = datasets.registry.get(dataset_hparams, train=True)
-    test_loader = datasets.registry.get(dataset_hparams, train=False)
+    if dataset_hparams.dataset_name == 'celeba':
+        test_loader = train_loader
+    else:
+        test_loader = datasets.registry.get(dataset_hparams, train=False)
     callbacks = standard_callbacks.standard_callbacks(
         training_hparams, train_loader, test_loader, start_step=start_step,
         verbose=verbose, evaluate_every_epoch=evaluate_every_epoch)
