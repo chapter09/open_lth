@@ -14,7 +14,7 @@ from ..platforms.platform import get_platform
 
 
 class CelebaDataset(VisionDataset):
-    classes = ['0.0', '1.0']
+    classes = ['0', '1']
     def __init__(self, csv_file, root_dir, transform=None):
         '''
         Args:
@@ -86,6 +86,7 @@ class Dataset(base.ImageDataset):
 
         data = np.vstack(data).reshape(-1, 3, 84, 84)
         data = data.transpose((0, 2, 3, 1))
+        
         return Dataset(data.astype(np.uint8), np.asarray(train_set.targets))
     
 
