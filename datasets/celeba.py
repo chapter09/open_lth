@@ -14,7 +14,7 @@ from ..platforms.platform import get_platform
 
 
 class CelebaDataset(VisionDataset):
-    classes = ['0', '1']
+
     def __init__(self, csv_file, root_dir, transform=None):
         '''
         Args:
@@ -23,13 +23,16 @@ class CelebaDataset(VisionDataset):
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         '''
-        self.dataset = pd.read_csv(csv_file)
+        df = pd.read_csv(csv_file, index_col=0)
         self.root_dir = root_dir
         self.transform = transform
-        self.targets = [target for target in self.dataset['target']]
+
+        self.img_idx = df.index.values
+        self.targets = df['Male'].values
+        self.transform = transform
 
     def __len__(self):
-        return len(self.dataset)
+        return self.targets.shape[0]
 
     def __getitem__(self, idx):
         """
@@ -42,17 +45,14 @@ class CelebaDataset(VisionDataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        X = Image.open(os.path.join(self.root_dir, self.dataset['img_name'][idx]))
-        target = int(self.targets[idx])
+        X = Image.open(os.path.join(self.root_dir, self.img_idx[idx]))
+        target = self.targets[idx]
         
         if self.transform:
             X = self.transform(X)
         
         return X, target
 
-    @property
-    def class_to_idx(self):
-        return {_class: i for i, _class in enumerate(self.classes)}
 
 class Dataset(base.ImageDataset):
     """The CelebA dataset."""
@@ -70,11 +70,11 @@ class Dataset(base.ImageDataset):
     @staticmethod
     def get_train_set(use_augmentation):
         #_image_transforms for celeba dataset
-        csv_path = '/mnt/open_lth_datasets/CelebA/data/all_data/all_data.csv'
+        csv_path = '/mnt/open_lth_datasets/CelebA/data/train/celeba-gender-train.csv'
         root_path = '/mnt/open_lth_datasets/CelebA/data/img_align_celeba/img_align_celeba'
         transform = transforms.Compose([
-            transforms.RandomHorizontalFlip(),
-            transforms.CenterCrop(84),
+            transforms.CenterCrop((178, 178)),
+            transforms.Resize((84, 84)),
             transforms.ToTensor()
         ])
         train_set = CelebaDataset(csv_path, root_path, transform=transform)

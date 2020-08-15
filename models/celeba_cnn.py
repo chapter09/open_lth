@@ -144,7 +144,13 @@ class Model(base.Model):
                              stride=(2, 2))             
         )
         
-        self.classifier = nn.Linear(512*2*2, 2)
+        self.classifier = nn.Sequential(
+                nn.Linear(512*2*2, 1024),
+                nn.ReLU(),   
+                nn.Linear(1024, 1024),
+                nn.ReLU(),
+                nn.Linear(1024, 2)
+        )
 
         self.apply(initializer)
         self.criterion = nn.CrossEntropyLoss()
@@ -166,8 +172,8 @@ class Model(base.Model):
         x = self.block_3(x)
         x = self.block_4(x)
         x = self.block_5(x)
-      
-        x = x.view(10, 512*2*2)
+       
+        x = x.view(x.size()[0], 512*2*2)
         logits = self.classifier(x)
         #probas = F.softmax(logits, dim=1)
         
