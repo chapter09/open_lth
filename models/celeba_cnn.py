@@ -17,164 +17,42 @@ from ..pruning import sparse_global
 class Model(base.Model):
     """A cnn neural network designed for CelebA."""
 
-    def __init__(self, plan, initializer, outputs=2):
-        super(Model, self).__init__()
-        
-        #equivalent of tf sigmoid_cross_entropy_with_logits
-        self.block_1 = nn.Sequential(
-                nn.Conv2d(in_channels=3,
-                          out_channels=64,
-                          kernel_size=(3, 3),
-                          stride=(1, 1),
-                          # (1(32-1)- 32 + 3)/2 = 1
-                          padding=1), 
-                nn.ReLU(),
-                nn.Conv2d(in_channels=64,
-                          out_channels=64,
-                          kernel_size=(3, 3),
-                          stride=(1, 1),
-                          padding=1),
-                nn.ReLU(),
-                nn.MaxPool2d(kernel_size=(2, 2),
-                             stride=(2, 2))
-        )
-        
-        self.block_2 = nn.Sequential(
-                nn.Conv2d(in_channels=64,
-                          out_channels=128,
-                          kernel_size=(3, 3),
-                          stride=(1, 1),
-                          padding=1),
-                nn.ReLU(),
-                nn.Conv2d(in_channels=128,
-                          out_channels=128,
-                          kernel_size=(3, 3),
-                          stride=(1, 1),
-                          padding=1),
-                nn.ReLU(),
-                nn.MaxPool2d(kernel_size=(2, 2),
-                             stride=(2, 2))
-        )
-        
-        self.block_3 = nn.Sequential(        
-                nn.Conv2d(in_channels=128,
-                          out_channels=256,
-                          kernel_size=(3, 3),
-                          stride=(1, 1),
-                          padding=1),
-                nn.ReLU(),
-                nn.Conv2d(in_channels=256,
-                          out_channels=256,
-                          kernel_size=(3, 3),
-                          stride=(1, 1),
-                          padding=1),
-                nn.ReLU(),        
-                nn.Conv2d(in_channels=256,
-                          out_channels=256,
-                          kernel_size=(3, 3),
-                          stride=(1, 1),
-                          padding=1),
-                nn.ReLU(),
-                nn.Conv2d(in_channels=256,
-                          out_channels=256,
-                          kernel_size=(3, 3),
-                          stride=(1, 1),
-                          padding=1),
-                nn.ReLU(),
-                nn.MaxPool2d(kernel_size=(2, 2),
-                             stride=(2, 2))
-        )
-        
-          
-        self.block_4 = nn.Sequential(   
-                nn.Conv2d(in_channels=256,
-                          out_channels=512,
-                          kernel_size=(3, 3),
-                          stride=(1, 1),
-                          padding=1),
-                nn.ReLU(),        
-                nn.Conv2d(in_channels=512,
-                          out_channels=512,
-                          kernel_size=(3, 3),
-                          stride=(1, 1),
-                          padding=1),
-                nn.ReLU(),        
-                nn.Conv2d(in_channels=512,
-                          out_channels=512,
-                          kernel_size=(3, 3),
-                          stride=(1, 1),
-                          padding=1),
-                nn.ReLU(),
-                nn.Conv2d(in_channels=512,
-                          out_channels=512,
-                          kernel_size=(3, 3),
-                          stride=(1, 1),
-                          padding=1),
-                nn.ReLU(),   
-                nn.MaxPool2d(kernel_size=(2, 2),
-                             stride=(2, 2))
-        )
-        
-        self.block_5 = nn.Sequential(
-                nn.Conv2d(in_channels=512,
-                          out_channels=512,
-                          kernel_size=(3, 3),
-                          stride=(1, 1),
-                          padding=1),
-                nn.ReLU(),            
-                nn.Conv2d(in_channels=512,
-                          out_channels=512,
-                          kernel_size=(3, 3),
-                          stride=(1, 1),
-                          padding=1),
-                nn.ReLU(),            
-                nn.Conv2d(in_channels=512,
-                          out_channels=512,
-                          kernel_size=(3, 3),
-                          stride=(1, 1),
-                          padding=1),
-                nn.ReLU(),
-                nn.Conv2d(in_channels=512,
-                          out_channels=512,
-                          kernel_size=(3, 3),
-                          stride=(1, 1),
-                          padding=1),
-                nn.ReLU(),   
-                nn.MaxPool2d(kernel_size=(2, 2),
-                             stride=(2, 2))             
-        )
-        
-        self.classifier = nn.Sequential(
-                nn.Linear(512*2*2, 1024),
-                nn.ReLU(),   
-                nn.Linear(1024, 1024),
-                nn.ReLU(),
-                nn.Linear(1024, 2)
-        )
+    class ConvModule(nn.Module):
+        """A single convolutional module in a VGG network."""
 
-        self.apply(initializer)
+        def __init__(self, in_filters, out_filters):
+            super(Model.ConvModule, self).__init__()
+            self.conv = nn.Conv2d(in_filters, out_filters, kernel_size=3, padding=1)
+            self.bn = nn.BatchNorm2d(out_filters)
+
+        def forward(self, x):
+            return F.relu(self.bn(self.conv(x)))
+
+    def __init__(self, plan, initializer, outputs=10):
+        super(Model, self).__init__()
+
+        layers = []
+        filters = 3
+
+        for spec in plan:
+            if spec == 'M':
+                layers.append(nn.MaxPool2d(kernel_size=2, stride=2))
+            else:
+                layers.append(Model.ConvModule(filters, spec))
+                filters = spec
+
+        self.layers = nn.Sequential(*layers)
+        self.fc = nn.Linear(512*2*2, outputs)
         self.criterion = nn.CrossEntropyLoss()
 
-        for m in self.modules():
-            if isinstance(m, torch.nn.Conv2d):
-                #n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
-                #m.weight.data.normal_(0, np.sqrt(2. / n))
-                m.weight.detach().normal_(0, 0.05)
-                if m.bias is not None:
-                    m.bias.detach().zero_()
-            elif isinstance(m, torch.nn.Linear):
-                m.weight.detach().normal_(0, 0.05)
-                m.bias.detach().detach().zero_()
+        self.apply(initializer)
 
     def forward(self, x):
-        x = self.block_1(x)
-        x = self.block_2(x)
-        x = self.block_3(x)
-        x = self.block_4(x)
-        x = self.block_5(x)
+        x = self.layers(x)
+        x = nn.AvgPool2d(2)(x)
        
         x = x.view(x.size()[0], 512*2*2)
-        logits = self.classifier(x)
+        logits = self.fc(x)
         #probas = F.softmax(logits, dim=1)
         
         return logits
@@ -192,7 +70,7 @@ class Model(base.Model):
         if not Model.is_valid_model_name(model_name):
             raise ValueError('Invalid model name: {}'.format(model_name))
         
-        plan = None
+        plan = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512]
         outputs = outputs or 2
         return Model(plan, initializer, outputs)
 
